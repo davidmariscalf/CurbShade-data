@@ -39,10 +39,11 @@ Use an unchanged OpenSidewalks 0.3 Draft 7 schema supplied by the caller:
 python -m venv .venv-osw
 # activate it
 pip install -e ".[osw]"
-curbshade-validate-osw dataset.zip --schema /path/to/opensidewalks.schema.json
+curbshade-validate-osw dataset.zip --schema /path/to/opensidewalks.schema.json \
+  --schema-sha256 <pinned-digest>
 ```
 
-CurbShade intentionally does not bundle or modify the OpenSidewalks schema. Validation covers the supplied JSON Schema plus ZIP hygiene and resource limits. It does not replace specialized cross-file geometry/topology validation.
+CurbShade intentionally does not bundle or modify the OpenSidewalks schema. Production jobs should pin the expected schema digest with `--schema-sha256` so validation cannot silently move to different schema bytes. Validation covers the supplied JSON Schema plus ZIP hygiene and resource limits. It does not replace specialized cross-file geometry/topology validation.
 
 The previous auxiliary validator dependency was removed after dependency auditing showed that it forced a vulnerable GeoPandas version. The OSW extra now uses `jsonschema-rs` directly and is audited independently in CI.
 
