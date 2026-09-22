@@ -2,59 +2,9 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 from pathlib import Path
-from typing import Any
 
-FIELDS = (
-    "slope_pct",
-    "curb_cm",
-    "width_m",
-    "surface_score",
-    "shade_fraction",
-    "crossing_risk",
-)
-
-
-def _length(edge: dict[str, Any]) -> float:
-    try:
-        value = float(edge.get("length_m", 0.0))
-    except (TypeError, ValueError):
-        return 0.0
-    return value if math.isfinite(value) and value > 0 else 0.0
-
-
-def profile(data: dict[str, Any]) -> dict[str, Any]:
-    edges = [edge for edge in data.get("edges", []) if isinstance(edge, dict)]
-    total_edges = len(edges)
-    total_length = sum(_length(edge) for edge in edges)
-
-    fields: dict[str, Any] = {}
-    for field in FIELDS:
-        def known(edge: dict[str, Any]) -> bool:
-            value = edge.get(field)
-            if value is None or isinstance(value, bool):
-                return False
-            try:
-                return math.isfinite(float(value))
-            except (TypeError, ValueError):
-                return False
-
-        known_edges = sum(known(edge) for edge in edges)
-        known_length = sum(_length(edge) for edge in edges if known(edge))
-        fields[field] = {
-            "known_edges": known_edges,
-            "edge_coverage_pct": round((known_edges / total_edges * 100.0) if total_edges else 0.0, 2),
-            "known_length_m": round(known_length, 2),
-            "length_coverage_pct": round((known_length / total_length * 100.0) if total_length else 0.0, 2),
-        }
-
-    return {
-        "nodes": len(data.get("nodes", [])),
-        "edges": total_edges,
-        "total_length_m": round(total_length, 2),
-        "fields": fields,
-    }
+from curbshade_data.coverage import profile_coverage
 
 
 def main() -> int:
@@ -68,7 +18,7 @@ def main() -> int:
     with args.graph.open("r", encoding="utf-8") as handle:
         data = json.load(handle)
 
-    result = profile(data)
+    result = profile_coverage(data)
     if args.as_json:
         print(json.dumps(result, indent=2, sort_keys=True))
         return 0
