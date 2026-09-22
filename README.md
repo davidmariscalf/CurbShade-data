@@ -35,16 +35,32 @@ python scripts/profile_coverage.py demo_network.json --json
 
 The report includes both edge-count coverage and length-weighted coverage. This makes missing data visible instead of letting a route score look more certain than its source data justifies.
 
-## Optional OSM acquisition
+## Production integrations
 
-Install:
+### OpenStreetMap / OSMnx
+
+OSM acquisition uses OSMnx 2.1.1 and requires Python 3.11+:
 
 ```bash
-pip install ".[osm]"
+pip install -e ".[osm]"
 python scripts/fetch_osm.py "Arganda del Rey, Spain" --out arganda.json
+python scripts/validate.py arganda.json
 ```
 
-OSM data is useful for topology but often lacks curb, width, slope and surface fields. Those remain `null`; they are **not** filled with optimistic defaults.
+The normalized artifact records source query, generation time, OSMnx version and OpenStreetMap attribution. OSM data is useful for topology but often lacks curb, width, slope and surface fields. Those remain `null`; they are **not** filled with optimistic defaults.
+
+### OpenSidewalks
+
+For OpenSidewalks interchange data, use the official Taskar Center validator:
+
+```bash
+pip install -e ".[osw]"
+python scripts/validate_osw.py dataset.zip
+```
+
+The supported interchange contract is [OpenSidewalks/OpenSidewalks-Schema](https://github.com/OpenSidewalks/OpenSidewalks-Schema), currently schema 0.3.
+
+**Important:** the current OSMnx and official OSW validator releases have incompatible GeoPandas constraints, so the `osm` and `osw` extras must run in separate virtual environments. CI intentionally verifies them separately. See [docs/PRODUCTION.md](docs/PRODUCTION.md).
 
 ## Licensing
 

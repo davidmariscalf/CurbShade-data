@@ -4,11 +4,41 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "curbshade-data"
-version = "0.1.0"
+version = "0.2.0"
+description = "Pedestrian accessibility and shade data ingestion, validation, and quality profiling for CurbShade."
 requires-python = ">=3.10"
 license = {text = "MIT"}
-dependencies = []
+keywords = ["accessibility", "routing", "openstreetmap", "opensidewalks", "pedestrian"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Scientific/Engineering :: GIS",
+]
+
+[project.urls]
+Repository = "https://github.com/davidmariscalf/CurbShade-data"
+Issues = "https://github.com/davidmariscalf/CurbShade-data/issues"
+OpenSidewalks = "https://github.com/OpenSidewalks/OpenSidewalks-Schema"
+
+[project.scripts]
+curbshade-validate = "curbshade_data.cli:validate_main"
+curbshade-profile = "curbshade_data.cli:profile_main"
+curbshade-schema = "curbshade_data.cli:schema_main"
 
 [project.optional-dependencies]
-osm = ["osmnx>=2.0"]
-dev = ["pytest>=8.0"]
+osm = ["osmnx>=2.1.1,<3; python_version >= '3.11'"]
+osw = ["python-osw-validation>=0.4.4,<0.5"]
+dev = ["pytest>=8,<10"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+curbshade_data = ["network.schema.json"]
