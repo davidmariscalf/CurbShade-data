@@ -29,7 +29,7 @@ jobs:
           cache: pip
       - run: python -m pip install ".[dev]"
       - run: python -m pip check
-      - run: python -m compileall -q scripts tests
+      - run: python -m compileall -q src scripts tests
       - run: pytest -q
       - run: python scripts/build_demo.py > /tmp/demo.json
       - run: python scripts/validate.py /tmp/demo.json
@@ -37,6 +37,10 @@ jobs:
       - run: python scripts/profile_coverage.py /tmp/demo.json --json > /tmp/coverage.json
       - run: curbshade-profile /tmp/demo.json --json > /tmp/coverage-cli.json
       - run: python -m json.tool /tmp/coverage.json >/dev/null
+      - name: Packaged schema smoke test
+        run: |
+          curbshade-schema --out /tmp/network.schema.json
+          python -m json.tool /tmp/network.schema.json >/dev/null
 
   osmnx-integration:
     runs-on: ubuntu-latest
