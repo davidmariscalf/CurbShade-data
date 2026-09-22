@@ -14,9 +14,9 @@ A production pipeline should keep these stages explicit:
 6. Reject or quarantine outputs that fail validation.
 7. Preserve source/provenance metadata with the artifact consumed by routing.
 
-## Isolated external integrations
+## External integrations
 
-Two mature external stacks are supported, but they currently have incompatible GeoPandas requirements and therefore must run in separate environments.
+OSM acquisition and OSW schema validation are optional extras so the core package remains lightweight.
 
 ### OpenStreetMap acquisition
 
@@ -33,16 +33,18 @@ OSM acquisition requires Python 3.11+.
 
 ### OpenSidewalks validation
 
-OpenSidewalks interchange data should be validated with the official Taskar Center validator before conversion or use:
+Use an unchanged OpenSidewalks 0.3 Draft 7 schema supplied by the caller:
 
 ```bash
 python -m venv .venv-osw
 # activate it
 pip install -e ".[osw]"
-python scripts/validate_osw.py dataset.zip
+curbshade-validate-osw dataset.zip --schema /path/to/opensidewalks.schema.json
 ```
 
-Do not install the `osm` and `osw` extras into the same environment while their GeoPandas constraints conflict. CI deliberately tests them in separate jobs.
+CurbShade intentionally does not bundle or modify the OpenSidewalks schema. Validation covers the supplied JSON Schema plus ZIP hygiene and resource limits. It does not replace specialized cross-file geometry/topology validation.
+
+The previous auxiliary validator dependency was removed after dependency auditing showed that it forced a vulnerable GeoPandas version. The OSW extra now uses `jsonschema-rs` directly and is audited independently in CI.
 
 ## Normalized graph gate
 
