@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import zipfile
 from pathlib import Path, PurePosixPath
@@ -33,7 +34,12 @@ def _load_json(path: Path, *, max_bytes: int, label: str) -> Any:
 
 def _safe_member_name(name: str) -> bool:
     path = PurePosixPath(name)
-    return bool(name) and not path.is_absolute() and ".." not in path.parts
+    return (
+        bool(name)
+        and "\\" not in name
+        and not path.is_absolute()
+        and ".." not in path.parts
+    )
 
 
 def validate_dataset(
@@ -41,6 +47,7 @@ def validate_dataset(
     *,
     schema_path: str | Path,
     max_errors: int = 20,
+    expected_schema_sha256: str | None = None,
 ) -> dict[str, Any]:
     """Validate OSW GeoJSON files against an explicit Draft 7 schema.
 
@@ -58,7 +65,30 @@ def validate_dataset(
             'OpenSidewalks schema validation requires: pip install "curbshade-data[osw]"'
         ) from exc
 
-    schema = _load_json(Path(schema_path), max_bytes=MAX_SCHEMA_BYTES, label="OSW schema")
+    schema_file = Path(schema_path)
+    schema_bytes = schema_file.read_bytes()
+    if len(schema_bytes) > MAX_SCHEMA_BYTES:
+        raise ValueError(f"OSW schema exceeds {MAX_SCHEMA_BYTES} bytes")
+    schema_sha256 = hashlib.sha256(schema_bytes).hexdigest()
+    if expected_schema_sha256 is not None:
+        expected = expected_schema_sha256.lower().strip()
+        if len(expected) != 64 or any(ch not in "0123456789abcdef" for ch in expected):
+            raise ValueError("expected_schema_sha256 must be a 64-character hexadecimal digest")
+        if schema_sha256 != expected:
+            raise ValueError(
+                f"OSW schema SHA-256 mismatch: expected {expected}, got {schema_sha256}"
+            )
+    try:
+        schema = json.loads(schema_bytes.decode("utf-8"))
+    except UnicodeDecodeError as exc:
+        raise ValueError("OSW schema must be UTF-8") from exc
+    except json.JSONDecodeError as exc:
+        raise ValueError(
+            f"invalid OSW schema JSON at line {exc.lineno}, column {exc.colno}: {exc.msg}"
+        ) from exc
+    if not isinstance(schema, dict):
+        raise ValueError("OSW schema root must be an object")
+
     try:
         validator = jsonschema_rs.Draft7Validator(schema)
     except Exception as exc:
@@ -84,7 +114,7 @@ def validate_dataset(
             if len(members) > MAX_ZIP_FILES:
                 add_error(f"dataset contains more than {MAX_ZIP_FILES} files")
 
-            for info in members:
+            for info in members[:MAX_ZIP_FILES]:
                 if len(errors) >= max_errors:
                     break
                 if not _safe_member_name(info.filename):
@@ -133,15 +163,24 @@ def validate_dataset(
                         info.filename,
                     )
                     continue
+                except RecursionError:
+                    add_error(f"JSON nesting is too deep in {info.filename}", info.filename)
+                    continue
                 except RuntimeError as exc:
                     add_error(f"cannot read {info.filename}: {exc}", info.filename)
                     continue
 
-                for err in validator.iter_errors(data):
-                    message = getattr(err, "message", None) or str(err)
-                    add_error(f"{info.filename}: {message}", info.filename)
-                    if len(errors) >= max_errors:
-                        break
+                try:
+                    for err in validator.iter_errors(data):
+                        message = getattr(err, "message", None) or str(err)
+                        add_error(f"{info.filename}: {message}", info.filename)
+                        if len(errors) >= max_errors:
+                            break
+                except Exception as exc:
+                    add_error(
+                        f"{info.filename}: schema validation failed safely: {exc}",
+                        info.filename,
+                    )
     except (OSError, zipfile.BadZipFile) as exc:
         raise ValueError(f"cannot read OSW dataset ZIP: {exc}") from exc
 
@@ -152,6 +191,7 @@ def validate_dataset(
         "valid": not errors,
         "validation_level": "schema",
         "schema": str(schema_path),
+        "schema_sha256": schema_sha256,
         "geojson_files": geojson_count,
         "errors": errors,
         "issues": issues,
