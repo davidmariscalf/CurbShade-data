@@ -122,6 +122,10 @@ def validate_osw_main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("dataset_zip", type=Path)
     parser.add_argument("--schema", type=Path, required=True)
+    parser.add_argument(
+        "--schema-sha256",
+        help="optional expected SHA-256 digest for the exact schema bytes",
+    )
     parser.add_argument("--max-errors", type=int, default=20)
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args(argv)
@@ -130,6 +134,7 @@ def validate_osw_main(argv: list[str] | None = None) -> int:
             args.dataset_zip,
             schema_path=args.schema,
             max_errors=args.max_errors,
+            expected_schema_sha256=args.schema_sha256,
         )
     except (OSError, ValueError, RuntimeError) as exc:
         print(f"OpenSidewalks validation failed: {exc}", file=sys.stderr)
