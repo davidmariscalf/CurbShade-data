@@ -55,10 +55,11 @@ CurbShade validates OSW GeoJSON against an explicit, unmodified OpenSidewalks Dr
 
 ```bash
 pip install -e ".[osw]"
-curbshade-validate-osw dataset.zip --schema /path/to/opensidewalks.schema.json
+curbshade-validate-osw dataset.zip --schema /path/to/opensidewalks.schema.json \
+  --schema-sha256 <pinned-digest>
 ```
 
-The supported contract is [OpenSidewalks/OpenSidewalks-Schema](https://github.com/OpenSidewalks/OpenSidewalks-Schema), currently schema 0.3. The validator also rejects unsafe ZIP member paths, encrypted entries, excessive uncompressed sizes and extreme compression ratios.
+The supported contract is [OpenSidewalks/OpenSidewalks-Schema](https://github.com/OpenSidewalks/OpenSidewalks-Schema), currently schema 0.3. For production, pin the exact schema bytes with `--schema-sha256`. The validator also rejects unsafe ZIP member paths, encrypted entries, excessive uncompressed sizes and extreme compression ratios.
 
 This is **schema validation plus ZIP-safety checking**. It does not claim parity with auxiliary validators that add cross-file topology or geometry-mapping checks.
 
