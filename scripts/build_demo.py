@@ -2,6 +2,7 @@ from __future__ import annotations
 import json
 
 graph = {
+    "schema_version": "curbshade-network/1",
     "nodes": [{"id": x} for x in ["A", "B", "C", "D", "E"]],
     "edges": [
         {"u":"A","v":"B","length_m":70,"slope_pct":2.0,"curb_cm":0.0,"width_m":1.5,"surface_score":0.9,"shade_fraction":0.1,"crossing_risk":0.1},
