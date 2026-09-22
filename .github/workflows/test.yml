@@ -70,13 +70,14 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - run: python -m pip install ".[osw]"
+      - run: python -m pip install ".[osw,dev]"
       - run: python -m pip check
-      - name: Verify official OpenSidewalks validator integration
+      - name: Verify OpenSidewalks Draft 7 schema integration
         run: |
-          python -c "from python_osw_validation import OSWValidation; print(OSWValidation)"
+          python -c "import jsonschema_rs; print(jsonschema_rs.__name__)"
           python scripts/validate_osw.py --help >/dev/null
           curbshade-validate-osw --help >/dev/null
+          pytest -q tests/test_osw_schema.py
 
   package:
     runs-on: ubuntu-latest
