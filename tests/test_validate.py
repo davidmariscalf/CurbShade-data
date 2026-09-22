@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from scripts.validate import validate
+from curbshade_data.validation import validate_graph
 
 
 def graph():
@@ -21,14 +21,14 @@ def graph():
 
 
 def test_valid_graph_passes():
-    assert validate(graph()) == []
+    assert validate_graph(graph()) == []
 
 
 def test_duplicate_nodes_and_unknown_endpoints_fail():
     data = graph()
     data["nodes"].append({"id": "A"})
     data["edges"][0]["v"] = "missing"
-    errors = validate(data)
+    errors = validate_graph(data)
     assert any("duplicate id" in error for error in errors)
     assert any("unknown endpoint" in error for error in errors)
 
@@ -38,7 +38,7 @@ def test_non_finite_and_invalid_accessibility_values_fail():
     data["edges"][0]["length_m"] = float("nan")
     data["edges"][0]["shade_fraction"] = float("inf")
     data["edges"][0]["width_m"] = 0
-    errors = validate(data)
+    errors = validate_graph(data)
     assert any("length_m" in error for error in errors)
     assert any("shade_fraction" in error for error in errors)
     assert any("width_m" in error for error in errors)
