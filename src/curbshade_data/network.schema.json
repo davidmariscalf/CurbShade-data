@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/davidmariscalf/CurbShade-data/blob/main/src/curbshade_data/network.schema.json",
+  "title": "CurbShade normalized pedestrian network",
+  "type": "object",
+  "required": ["schema_version", "nodes", "edges"],
+  "properties": {
+    "schema_version": {"const": "curbshade-network/1"},
+    "generated_at": {"type": "string"},
+    "source": {"type": "object"},
+    "quality": {"type": "object"},
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {"id": {"type": "string", "minLength": 1}},
+        "additionalProperties": true
+      }
+    },
+    "edges": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["u", "v", "length_m"],
+        "properties": {
+          "u": {"type": "string", "minLength": 1},
+          "v": {"type": "string", "minLength": 1},
+          "length_m": {"type": "number", "exclusiveMinimum": 0},
+          "slope_pct": {"type": ["number", "null"]},
+          "curb_cm": {"type": ["number", "null"], "minimum": 0},
+          "width_m": {"type": ["number", "null"], "exclusiveMinimum": 0},
+          "surface_score": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+          "shade_fraction": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+          "crossing_risk": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+          "source": {"type": "string"}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}
