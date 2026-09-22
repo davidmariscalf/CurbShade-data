@@ -1,0 +1,45 @@
+name: Bug report
+description: Report a reproducible defect
+title: "[bug] "
+body:
+  - type: markdown
+    attributes:
+      value: "Please provide enough detail to reproduce the problem."
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: "e.g. 0.2.0 or commit SHA"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "OS, Python version, installation method"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: "Exact commands and minimal input"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include the full traceback or error output when available.
+    validations:
+      required: true
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
