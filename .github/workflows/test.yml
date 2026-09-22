@@ -36,7 +36,7 @@ jobs:
       - run: python scripts/profile_coverage.py /tmp/demo.json --json > /tmp/coverage.json
       - run: python -m json.tool /tmp/coverage.json >/dev/null
 
-  integrations:
+  osmnx-integration:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -47,11 +47,24 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - run: python -m pip install ".[osm,osw]"
+      - run: python -m pip install ".[osm]"
       - run: python -m pip check
-      - name: Verify OSMnx integration
-        run: python -c "import osmnx; print(osmnx.__version__)"
-      - name: Verify OpenSidewalks validator integration
+      - run: python -c "import osmnx; assert osmnx.__version__ >= '2.1.1'; print(osmnx.__version__)"
+
+  opensidewalks-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install ".[osw]"
+      - run: python -m pip check
+      - name: Verify official OpenSidewalks validator integration
         run: |
           python -c "from python_osw_validation import OSWValidation; print(OSWValidation)"
           python scripts/validate_osw.py --help >/dev/null
