@@ -7,6 +7,8 @@ from importlib.resources import files as resource_files
 from pathlib import Path
 
 from .coverage import profile_coverage
+from .osm import convert_place
+from .osw import validate_dataset
 from .validation import validate_graph
 
 
@@ -96,3 +98,43 @@ def schema_main(argv: list[str] | None = None) -> int:
     else:
         print(content)
     return 0
+
+
+def fetch_osm_main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Fetch and normalize an OpenStreetMap walking graph")
+    parser.add_argument("place")
+    parser.add_argument("--out", type=Path, required=True)
+    args = parser.parse_args(argv)
+    try:
+        data = convert_place(args.place)
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    except Exception as exc:
+        print(f"OSM acquisition failed: {exc}", file=sys.stderr)
+        return 2
+    print(args.out)
+    return 0
+
+
+def validate_osw_main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Validate an OpenSidewalks dataset ZIP with the official TDEI validator."
+    )
+    parser.add_argument("dataset_zip", type=Path)
+    parser.add_argument("--max-errors", type=int, default=20)
+    parser.add_argument("--json", action="store_true", dest="as_json")
+    args = parser.parse_args(argv)
+    try:
+        payload = validate_dataset(args.dataset_zip, max_errors=args.max_errors)
+    except (OSError, ValueError, RuntimeError) as exc:
+        print(f"OpenSidewalks validation failed: {exc}", file=sys.stderr)
+        return 2
+
+    if args.as_json:
+        print(json.dumps(payload, indent=2, default=str))
+    elif payload["valid"]:
+        print("OK: OpenSidewalks dataset is valid")
+    else:
+        for error in payload["errors"]:
+            print(error, file=sys.stderr)
+    return 0 if payload["valid"] else 1
