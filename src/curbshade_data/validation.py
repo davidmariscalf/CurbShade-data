@@ -27,9 +27,13 @@ def validate_graph(data: Any) -> list[str]:
     if not isinstance(nodes, list):
         errors.append("nodes must be an array")
         nodes = []
+    elif not nodes:
+        errors.append("nodes must not be empty")
     if not isinstance(edges, list):
         errors.append("edges must be an array")
         edges = []
+    elif not edges:
+        errors.append("edges must not be empty")
 
     node_ids: set[str] = set()
     for index, node in enumerate(nodes):
