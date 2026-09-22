@@ -118,14 +118,24 @@ def fetch_osm_main(argv: list[str] | None = None) -> int:
 
 def validate_osw_main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Validate an OpenSidewalks dataset ZIP with the official TDEI validator."
+        description="Validate OSW GeoJSON in a ZIP against an explicit OpenSidewalks Draft 7 schema."
     )
     parser.add_argument("dataset_zip", type=Path)
+    parser.add_argument("--schema", type=Path, required=True)
+    parser.add_argument(
+        "--schema-sha256",
+        help="optional expected SHA-256 digest for the exact schema bytes",
+    )
     parser.add_argument("--max-errors", type=int, default=20)
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args(argv)
     try:
-        payload = validate_dataset(args.dataset_zip, max_errors=args.max_errors)
+        payload = validate_dataset(
+            args.dataset_zip,
+            schema_path=args.schema,
+            max_errors=args.max_errors,
+            expected_schema_sha256=args.schema_sha256,
+        )
     except (OSError, ValueError, RuntimeError) as exc:
         print(f"OpenSidewalks validation failed: {exc}", file=sys.stderr)
         return 2
@@ -133,7 +143,7 @@ def validate_osw_main(argv: list[str] | None = None) -> int:
     if args.as_json:
         print(json.dumps(payload, indent=2, default=str))
     elif payload["valid"]:
-        print("OK: OpenSidewalks dataset is valid")
+        print("OK: OSW GeoJSON passes schema validation and ZIP safety checks")
     else:
         for error in payload["errors"]:
             print(error, file=sys.stderr)

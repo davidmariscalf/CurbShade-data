@@ -14,4 +14,4 @@ python -m twine check dist/*
 
 For a tag-based build, the tag must exactly match the package version, for example `v0.2.0`. The Release build workflow enforces this and uploads verified distributions plus SHA-256 checksums.
 
-Do not combine the `osm` and `osw` extras in one environment while their GeoPandas constraints remain incompatible. Before release, verify that `curbshade-fetch-osm --help` and `curbshade-validate-osw --help` are present in the built wheel. A schema-breaking network change requires a new `schema_version`, not a silent edit to `curbshade-network/1`.
+Before release, verify that `curbshade-fetch-osm --help` and `curbshade-validate-osw --help` are present in the built wheel, that the `core`, `osm`, and `osw` dependency-audit jobs are green, that OSW tests validate against an explicit Draft 7 schema, and that production deployments pin the expected schema SHA-256. A schema-breaking network change requires a new `schema_version`, not a silent edit to `curbshade-network/1`.
