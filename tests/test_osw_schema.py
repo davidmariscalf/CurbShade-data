@@ -1,14 +1,18 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 import zipfile
 
 import pytest
 
-pytest.importorskip("jsonschema_rs")
-
 from curbshade_data.osw import validate_dataset
+
+pytestmark = pytest.mark.skipif(
+    importlib.util.find_spec("jsonschema_rs") is None,
+    reason="OSW extra is not installed",
+)
 
 
 SCHEMA = {
