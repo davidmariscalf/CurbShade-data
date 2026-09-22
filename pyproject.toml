@@ -31,3 +31,6 @@ OpenSidewalks = "https://github.com/OpenSidewalks/OpenSidewalks-Schema"
 osm = ["osmnx>=2.1.1,<3; python_version >= '3.11'"]
 osw = ["python-osw-validation>=0.4.4,<0.5"]
 dev = ["pytest>=8,<10"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
