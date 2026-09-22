@@ -42,3 +42,9 @@ def test_non_finite_and_invalid_accessibility_values_fail():
     assert any("length_m" in error for error in errors)
     assert any("shade_fraction" in error for error in errors)
     assert any("width_m" in error for error in errors)
+
+
+def test_empty_graph_is_rejected():
+    errors = validate_graph({"nodes": [], "edges": []})
+    assert any("nodes must not be empty" in error for error in errors)
+    assert any("edges must not be empty" in error for error in errors)
