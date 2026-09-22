@@ -13,25 +13,6 @@ MAX_TOTAL_UNCOMPRESSED_BYTES = 100 * 1024 * 1024
 MAX_COMPRESSION_RATIO = 200.0
 
 
-def _load_json(path: Path, *, max_bytes: int, label: str) -> Any:
-    try:
-        size = path.stat().st_size
-    except OSError as exc:
-        raise ValueError(f"cannot stat {label}: {exc}") from exc
-    if size > max_bytes:
-        raise ValueError(f"{label} exceeds {max_bytes} bytes")
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except OSError as exc:
-        raise ValueError(f"cannot read {label}: {exc}") from exc
-    except UnicodeDecodeError as exc:
-        raise ValueError(f"{label} must be UTF-8") from exc
-    except json.JSONDecodeError as exc:
-        raise ValueError(
-            f"invalid {label} JSON at line {exc.lineno}, column {exc.colno}: {exc.msg}"
-        ) from exc
-
-
 def _safe_member_name(name: str) -> bool:
     path = PurePosixPath(name)
     return (
@@ -66,9 +47,16 @@ def validate_dataset(
         ) from exc
 
     schema_file = Path(schema_path)
-    schema_bytes = schema_file.read_bytes()
-    if len(schema_bytes) > MAX_SCHEMA_BYTES:
+    try:
+        schema_size = schema_file.stat().st_size
+    except OSError as exc:
+        raise ValueError(f"cannot stat OSW schema: {exc}") from exc
+    if schema_size > MAX_SCHEMA_BYTES:
         raise ValueError(f"OSW schema exceeds {MAX_SCHEMA_BYTES} bytes")
+    try:
+        schema_bytes = schema_file.read_bytes()
+    except OSError as exc:
+        raise ValueError(f"cannot read OSW schema: {exc}") from exc
     schema_sha256 = hashlib.sha256(schema_bytes).hexdigest()
     if expected_schema_sha256 is not None:
         expected = expected_schema_sha256.lower().strip()
