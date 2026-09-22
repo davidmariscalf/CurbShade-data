@@ -34,7 +34,7 @@ curbshade-schema = "curbshade_data.cli:schema_main"
 
 [project.optional-dependencies]
 osm = ["osmnx>=2.1.1,<3; python_version >= '3.11'"]
-osw = ["python-osw-validation>=0.4.4,<0.5"]
+osw = ["python-osw-validation>=0.4.4,<0.6"]
 dev = ["pytest>=8,<10"]
 
 [tool.setuptools.packages.find]
