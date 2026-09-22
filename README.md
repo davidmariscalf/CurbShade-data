@@ -19,6 +19,22 @@ python scripts/validate.py demo_network.json
 
 The generated file can be routed by the main repository.
 
+## Audit data completeness
+
+Accessibility routing is only as credible as the attributes behind it. Use the built-in coverage profiler to see how much of a graph actually contains curb, width, slope, surface, shade and crossing-risk data:
+
+```bash
+python scripts/profile_coverage.py demo_network.json
+```
+
+For machine-readable output:
+
+```bash
+python scripts/profile_coverage.py demo_network.json --json
+```
+
+The report includes both edge-count coverage and length-weighted coverage. This makes missing data visible instead of letting a route score look more certain than its source data justifies.
+
 ## Optional OSM acquisition
 
 Install:
