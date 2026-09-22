@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from importlib.resources import files as resource_files
 from pathlib import Path
 
 from .coverage import profile_coverage
@@ -80,4 +81,18 @@ def profile_main(argv: list[str] | None = None) -> int:
             f"{stats['edge_coverage_pct']:>8.2f}% "
             f"{stats['length_coverage_pct']:>9.2f}%"
         )
+    return 0
+
+
+def schema_main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Print or write the CurbShade network JSON Schema")
+    parser.add_argument("--out", type=Path)
+    args = parser.parse_args(argv)
+    content = resource_files("curbshade_data").joinpath("network.schema.json").read_text(encoding="utf-8")
+    if args.out:
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(content if content.endswith("\n") else content + "\n", encoding="utf-8")
+        print(f"curbshade schema: wrote={args.out}")
+    else:
+        print(content)
     return 0
