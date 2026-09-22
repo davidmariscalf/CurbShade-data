@@ -17,10 +17,16 @@ def finite_number(value: Any) -> float | None:
     return number if math.isfinite(number) else None
 
 
+SCHEMA_VERSION = "curbshade-network/1"
+
+
 def validate_graph(data: Any) -> list[str]:
     errors: list[str] = []
     if not isinstance(data, dict):
         return ["graph root must be an object"]
+
+    if data.get("schema_version") != SCHEMA_VERSION:
+        errors.append(f"schema_version must be {SCHEMA_VERSION!r}")
 
     nodes = data.get("nodes")
     edges = data.get("edges")
