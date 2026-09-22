@@ -5,6 +5,7 @@ from curbshade_data.validation import validate_graph
 
 def graph():
     return {
+        "schema_version": "curbshade-network/1",
         "nodes": [{"id": "A"}, {"id": "B"}],
         "edges": [{
             "u": "A",
@@ -48,3 +49,10 @@ def test_empty_graph_is_rejected():
     errors = validate_graph({"nodes": [], "edges": []})
     assert any("nodes must not be empty" in error for error in errors)
     assert any("edges must not be empty" in error for error in errors)
+
+
+def test_schema_version_is_required():
+    data = graph()
+    del data["schema_version"]
+    errors = validate_graph(data)
+    assert any("schema_version" in error for error in errors)
