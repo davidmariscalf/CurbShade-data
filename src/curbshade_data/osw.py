@@ -11,6 +11,9 @@ MAX_ZIP_FILES = 64
 MAX_MEMBER_BYTES = 25 * 1024 * 1024
 MAX_TOTAL_UNCOMPRESSED_BYTES = 100 * 1024 * 1024
 MAX_COMPRESSION_RATIO = 200.0
+OSW_03_SCHEMA_ID = "https://sidewalks.washington.edu/opensidewalks/0.3/schema.json"
+DRAFT7_SCHEMA_URI = "http://json-schema.org/draft-07/schema#"
+OSW_DATASET_TYPES = {"edges", "lines", "nodes", "points", "polygons", "zones"}
 
 
 def _safe_member_name(name: str) -> bool:
@@ -21,6 +24,16 @@ def _safe_member_name(name: str) -> bool:
         and not path.is_absolute()
         and ".." not in path.parts
     )
+
+
+def _supported_geojson_name(name: str) -> bool:
+    base = PurePosixPath(name).name
+    parts = base.split(".")
+    if len(parts) < 2 or parts[-1] != "geojson":
+        return False
+    if parts[-2] in OSW_DATASET_TYPES:
+        return True
+    return len(parts) >= 3 and parts[-2] == "OSW" and parts[-3] in OSW_DATASET_TYPES
 
 
 def validate_dataset(
@@ -76,6 +89,10 @@ def validate_dataset(
         ) from exc
     if not isinstance(schema, dict):
         raise ValueError("OSW schema root must be an object")
+    if schema.get("$schema") != DRAFT7_SCHEMA_URI:
+        raise ValueError(f"OSW schema must declare {DRAFT7_SCHEMA_URI!r}")
+    if schema.get("$id") != OSW_03_SCHEMA_ID:
+        raise ValueError(f"OSW schema must declare $id {OSW_03_SCHEMA_ID!r}")
 
     try:
         validator = jsonschema_rs.Draft7Validator(schema)
@@ -136,6 +153,12 @@ def validate_dataset(
                         continue
 
                 if not info.filename.lower().endswith(".geojson"):
+                    continue
+                if not _supported_geojson_name(info.filename):
+                    add_error(
+                        f"unsupported OSW GeoJSON filename: {info.filename}",
+                        info.filename,
+                    )
                     continue
                 geojson_count += 1
                 try:

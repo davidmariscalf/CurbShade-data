@@ -16,6 +16,7 @@ pytestmark = pytest.mark.skipif(
 
 
 SCHEMA = {
+    "$id": "https://sidewalks.washington.edu/opensidewalks/0.3/schema.json",
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "required": ["type", "features"],
@@ -94,3 +95,27 @@ def test_osw_schema_digest_can_be_pinned(tmp_path):
             schema_path=schema,
             expected_schema_sha256="0" * 64,
         )
+
+
+def test_osw_validation_rejects_wrong_schema_identity(tmp_path):
+    schema = tmp_path / "schema.json"
+    dataset = tmp_path / "dataset.zip"
+    wrong = dict(SCHEMA)
+    wrong["$id"] = "https://example.invalid/not-osw.json"
+    schema.write_text(json.dumps(wrong), encoding="utf-8")
+    _write_zip(dataset, "nodes.geojson", {"type": "FeatureCollection", "features": []})
+
+    with pytest.raises(ValueError, match="must declare \\$id"):
+        validate_dataset(dataset, schema_path=schema)
+
+
+def test_osw_validation_rejects_nonstandard_dataset_filename(tmp_path):
+    schema = tmp_path / "schema.json"
+    dataset = tmp_path / "dataset.zip"
+    _write_schema(schema)
+    _write_zip(dataset, "random.geojson", {"type": "FeatureCollection", "features": []})
+
+    result = validate_dataset(dataset, schema_path=schema)
+
+    assert result["valid"] is False
+    assert any("unsupported OSW GeoJSON filename" in error for error in result["errors"])
