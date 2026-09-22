@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +21,7 @@ def _length(edge: dict[str, Any]) -> float:
         value = float(edge.get("length_m", 0.0))
     except (TypeError, ValueError):
         return 0.0
-    return value if value > 0 else 0.0
+    return value if math.isfinite(value) and value > 0 else 0.0
 
 
 def profile(data: dict[str, Any]) -> dict[str, Any]:
@@ -30,8 +31,17 @@ def profile(data: dict[str, Any]) -> dict[str, Any]:
 
     fields: dict[str, Any] = {}
     for field in FIELDS:
-        known_edges = sum(edge.get(field) is not None for edge in edges)
-        known_length = sum(_length(edge) for edge in edges if edge.get(field) is not None)
+        def known(edge: dict[str, Any]) -> bool:
+            value = edge.get(field)
+            if value is None or isinstance(value, bool):
+                return False
+            try:
+                return math.isfinite(float(value))
+            except (TypeError, ValueError):
+                return False
+
+        known_edges = sum(known(edge) for edge in edges)
+        known_length = sum(_length(edge) for edge in edges if known(edge))
         fields[field] = {
             "known_edges": known_edges,
             "edge_coverage_pct": round((known_edges / total_edges * 100.0) if total_edges else 0.0, 2),
