@@ -51,16 +51,16 @@ The normalized artifact records source query, generation time, OSMnx version and
 
 ### OpenSidewalks
 
-For OpenSidewalks interchange data, use the official Taskar Center validator:
+CurbShade validates OSW GeoJSON against an explicit, unmodified OpenSidewalks Draft 7 schema. Keep the schema outside this repository and pass its path explicitly:
 
 ```bash
 pip install -e ".[osw]"
-curbshade-validate-osw dataset.zip
+curbshade-validate-osw dataset.zip --schema /path/to/opensidewalks.schema.json
 ```
 
-The supported interchange contract is [OpenSidewalks/OpenSidewalks-Schema](https://github.com/OpenSidewalks/OpenSidewalks-Schema), currently schema 0.3.
+The supported contract is [OpenSidewalks/OpenSidewalks-Schema](https://github.com/OpenSidewalks/OpenSidewalks-Schema), currently schema 0.3. The validator also rejects unsafe ZIP member paths, encrypted entries, excessive uncompressed sizes and extreme compression ratios.
 
-**Important:** the current OSMnx and official OSW validator releases have incompatible GeoPandas constraints, so the `osm` and `osw` extras must run in separate virtual environments. CI intentionally verifies them separately. See [docs/PRODUCTION.md](docs/PRODUCTION.md).
+This is **schema validation plus ZIP-safety checking**. It does not claim parity with auxiliary validators that add cross-file topology or geometry-mapping checks.
 
 ## Licensing
 
@@ -76,7 +76,7 @@ curbshade-validate graph.json
 curbshade-profile graph.json --json
 curbshade-schema --out network.schema.json
 curbshade-fetch-osm "Madrid, Spain" --out madrid.json      # install [osm]
-curbshade-validate-osw dataset.zip                         # install [osw]
+curbshade-validate-osw dataset.zip --schema osw.schema.json # install [osw]
 ```
 
 The legacy files under `scripts/` remain thin wrappers for source-checkout compatibility.
