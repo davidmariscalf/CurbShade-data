@@ -4,7 +4,9 @@ All notable changes are recorded here.
 
 ## Unreleased
 
-No unreleased changes yet.
+- Added Ruff static analysis and scheduled dependency vulnerability audits.
+- Replaced the auxiliary OSW validator dependency after auditing found it pinned a vulnerable GeoPandas release (PYSEC-2026-62).
+- OSW ZIPs are now validated against an explicit caller-supplied Draft 7 schema with path, size, encryption and compression-ratio safety checks.
 
 ## 0.2.0 - 2026-09-22
 
