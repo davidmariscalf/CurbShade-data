@@ -4,6 +4,9 @@ All notable changes are recorded here.
 
 ## Unreleased
 
+- Release builds now install and smoke-test the built wheel before artifact upload.
+- Release PRs verify changelog/version consistency and SHA-256 checksums before tagging.
+- Added weekly Dependabot updates for Python dependencies and pinned GitHub Actions.
 - Added Ruff static analysis and scheduled dependency vulnerability audits.
 - Replaced the auxiliary OSW validator dependency after auditing found it pinned a vulnerable GeoPandas release (PYSEC-2026-62).
 - OSW ZIPs are now validated against an explicit caller-supplied Draft 7 schema with path, size, encryption and compression-ratio safety checks.
