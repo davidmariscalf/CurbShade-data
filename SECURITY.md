@@ -12,3 +12,5 @@ Security-sensitive changes should include a regression test and must pass the re
 OSW ZIP files are treated as untrusted input. Validation reads members in place without extracting them and rejects parent-directory paths, encrypted members, oversized files, excessive aggregate uncompressed size, and extreme compression ratios. The OSW schema is supplied explicitly by the caller rather than fetched at runtime.
 
 Optional dependency profiles (`core`, `osm`, and `osw`) are audited independently with pip-audit on pull requests and weekly.
+
+Dependency and GitHub Actions version updates are checked weekly by Dependabot. Those update pull requests still have to pass the repository CI and dependency audit before merge.
