@@ -4,6 +4,7 @@ All notable changes are recorded here.
 
 ## Unreleased
 
+- Added branch-coverage measurement (current baseline 76%) with a CI floor of 73% to prevent silent test-coverage regressions.
 - Release builds now install and smoke-test the built wheel before artifact upload.
 - Release PRs verify changelog/version consistency and SHA-256 checksums before tagging.
 - Added weekly Dependabot updates for Python dependencies and pinned GitHub Actions.
