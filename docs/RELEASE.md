@@ -17,3 +17,5 @@ For a tag-based build, the tag must exactly match the package version, for examp
 Changes to the release workflow, package metadata or changelog also execute the release build on pull requests so release breakage is detected before tagging.
 
 Before release, verify that `curbshade-fetch-osm --help` and `curbshade-validate-osw --help` are present in the built wheel, that the `core`, `osm`, and `osw` dependency-audit jobs are green, that OSW tests validate against an explicit Draft 7 schema, and that production deployments pin the expected schema SHA-256. A schema-breaking network change requires a new `schema_version`, not a silent edit to `curbshade-network/1`.
+
+CI also enforces branch coverage at or above 73% (measured baseline: 76%). A release must not lower this gate to make CI pass; add tests or justify a deliberate contract change instead.
