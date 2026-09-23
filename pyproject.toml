@@ -37,7 +37,7 @@ curbshade-validate-osw = "curbshade_data.cli:validate_osw_main"
 [project.optional-dependencies]
 osm = ["osmnx>=2.1.1,<3; python_version >= '3.11'"]
 osw = ["jsonschema-rs>=0.33,<1"]
-dev = ["pytest>=8,<10", "ruff==0.16.8"]
+dev = ["pytest>=8,<10", "ruff==0.16.8", "coverage>=7,<8"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
