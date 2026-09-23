@@ -58,7 +58,7 @@ jobs:
       - name: Measure branch coverage
         run: |
           coverage run --branch --source=curbshade_data -m pytest -q
-          coverage report -m --fail-under=84
+          coverage report -m --fail-under=90
 
   osmnx-integration:
     runs-on: ubuntu-latest
