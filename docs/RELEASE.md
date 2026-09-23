@@ -18,4 +18,4 @@ Changes to the release workflow, package metadata or changelog also execute the 
 
 Before release, verify that `curbshade-fetch-osm --help` and `curbshade-validate-osw --help` are present in the built wheel, that the `core`, `osm`, and `osw` dependency-audit jobs are green, that OSW tests validate against an explicit Draft 7 schema, and that production deployments pin the expected schema SHA-256. A schema-breaking network change requires a new `schema_version`, not a silent edit to `curbshade-network/1`.
 
-CI also enforces branch coverage at or above 84% (measured baseline: 87%). A release must not lower this gate to make CI pass; add tests or justify a deliberate contract change instead.
+CI also enforces branch coverage at or above 90% (measured baseline: 93%). A release must not lower this gate to make CI pass; add tests or justify a deliberate contract change instead.
