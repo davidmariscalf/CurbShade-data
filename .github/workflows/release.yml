@@ -5,6 +5,11 @@ on:
   push:
     tags:
       - "v*"
+  pull_request:
+    paths:
+      - ".github/workflows/release.yml"
+      - "pyproject.toml"
+      - "CHANGELOG.md"
 
 permissions:
   contents: read
