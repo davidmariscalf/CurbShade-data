@@ -4,6 +4,7 @@ All notable changes are recorded here.
 
 ## Unreleased
 
+- Raised branch coverage from 87% to 93% by covering the full graph-validation contract; validation.py is now 100% covered and the CI floor is 90%.
 - Raised branch coverage from 76% to 87% with deterministic OSM normalization and OSW boundary tests; CI floor raised from 73% to 84%.
 - Added branch-coverage measurement (current baseline 76%) with a CI floor of 73% to prevent silent test-coverage regressions.
 - Release builds now install and smoke-test the built wheel before artifact upload.
